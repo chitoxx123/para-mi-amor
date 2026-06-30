@@ -328,7 +328,8 @@ body{
   <input type="range" id="vol" min="0" max="1" step="0.05" value="0.5" />
 </div>
 
-<!-- Reproductor oculto de YouTube -->
+<!-- AUDIO: poné tu mp3 en la misma carpeta con este nombre -->
+<!-- Reproductor de YouTube oculto -->
 <div id="yt-player" style="width:0;height:0;overflow:hidden;"></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
@@ -344,8 +345,6 @@ function onYouTubeIframeAPIReady() {
         playerVars: {
             autoplay: 0,
             controls: 0,
-            modestbranding: 1,
-            rel: 0,
             loop: 1,
             playlist: 'gO8-9OWzPOQ'
         }
@@ -610,31 +609,31 @@ function updateDots(){
     }
 
     play.addEventListener('click', () => {
-        if (window.ytPlayer) {
-            window.ytPlayer.playVideo();
+        if (ytPlayer) {
+            ytPlayer.playVideo();
             S.playing = true;
             update();
         }
     });
 
     pause.addEventListener('click', () => {
-        if (window.ytPlayer) {
-            window.ytPlayer.pauseVideo();
+        if (ytPlayer) {
+            ytPlayer.pauseVideo();
             S.playing = false;
             update();
         }
     });
 
     vol.addEventListener('input', () => {
-        if (window.ytPlayer) {
-            window.ytPlayer.setVolume(vol.value * 100);
+        if (ytPlayer) {
+            ytPlayer.setVolume(vol.value * 100);
         }
     });
 
     document.addEventListener('click', () => {
-        if (!S.clicked && window.ytPlayer) {
+        if (!S.clicked && ytPlayer) {
             S.clicked = true;
-            window.ytPlayer.playVideo();
+            ytPlayer.playVideo();
             S.playing = true;
             update();
         }
