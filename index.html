@@ -328,8 +328,7 @@ body{
   <input type="range" id="vol" min="0" max="1" step="0.05" value="0.5" />
 </div>
 
-<!-- AUDIO: poné tu mp3 en la misma carpeta con este nombre -->
-<!-- Reproductor de YouTube oculto -->
+<!-- Reproductor oculto de YouTube -->
 <div id="yt-player" style="width:0;height:0;overflow:hidden;"></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
@@ -341,12 +340,14 @@ function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('yt-player', {
         height: '0',
         width: '0',
-        videoId: https://www.youtube.com/watch?v=gO8-9OWzPOQ
+        videoId: 'gO8-9OWzPOQ',
         playerVars: {
             autoplay: 0,
             controls: 0,
+            modestbranding: 1,
+            rel: 0,
             loop: 1,
-            playlist: 'VIDEO_ID'
+            playlist: 'gO8-9OWzPOQ'
         }
     });
 }
@@ -609,31 +610,31 @@ function updateDots(){
     }
 
     play.addEventListener('click', () => {
-        if (ytPlayer) {
-            ytPlayer.playVideo();
+        if (window.ytPlayer) {
+            window.ytPlayer.playVideo();
             S.playing = true;
             update();
         }
     });
 
     pause.addEventListener('click', () => {
-        if (ytPlayer) {
-            ytPlayer.pauseVideo();
+        if (window.ytPlayer) {
+            window.ytPlayer.pauseVideo();
             S.playing = false;
             update();
         }
     });
 
     vol.addEventListener('input', () => {
-        if (ytPlayer) {
-            ytPlayer.setVolume(vol.value * 100);
+        if (window.ytPlayer) {
+            window.ytPlayer.setVolume(vol.value * 100);
         }
     });
 
     document.addEventListener('click', () => {
-        if (!S.clicked && ytPlayer) {
+        if (!S.clicked && window.ytPlayer) {
             S.clicked = true;
-            ytPlayer.playVideo();
+            window.ytPlayer.playVideo();
             S.playing = true;
             update();
         }
