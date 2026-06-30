@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para el amor de mi vida ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+/* =============================================
+   VARIABLES
+   ============================================= */
+:root {
+  --rosa:          #FF6B9D;
+  --rosa-suave:    #FFB3CC;
+  --violeta:       #8B5CF6;
+  --violeta-claro: #C4B5FD;
+  --dorado:        #F5C842;
+  --dorado-suave:  #FDE68A;
+  --blanco:        #FFFFFF;
+  --negro-fondo:   #0D0010;
+  --texto-claro:   #FFF0F5;
+  --glass-bg:      rgba(255,255,255,0.06);
+  --glass-border:  rgba(255,255,255,0.15);
+  --sombra-card:   0 8px 32px rgba(139,92,246,0.2), 0 2px 8px rgba(255,107,157,0.15);
+  --tr:            cubic-bezier(0.4,0,0.2,1);
+}
+
+/* =============================================
+   RESET
+   ============================================= */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:16px;}
+body{
+  font-family:'Montserrat',sans-serif;
+  background:var(--negro-fondo);
+  color:var(--texto-claro);
+  overflow-x:hidden;
+  cursor:none;
+  min-height:100vh;
+}
+
+/* =============================================
+   CURSOR
+   ============================================= */
+#cursor-dot{
+  width:8px;height:8px;
+  background:var(--rosa);
+  border-radius:50%;
+  position:fixed;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:99999;
+  box-shadow:0 0 10px var(--rosa);
+  transition:transform .05s ease;
+}
+#cursor-heart{
+  position:fixed;font-size:20px;
+  transform:translate(-50%,-50%);
+  pointer-events:none;z-index:99998;opacity:.7;
+  transition:transform .15s ease;
+}
+
+/* =============================================
+   PANTALLA DE CARGA
+   ============================================= */
+#loading-screen{
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse at center,#2D0040 0%,#0D0010 70%);
+  z-index:9999;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2rem;
+  transition:opacity .8s ease,visibility .8s ease;
+}
+#loading-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.loading-heart{font-size:5rem;animation:heartbeat 1s ease-in-out infinite;filter:drop-shadow(0 0 20px var(--rosa));}
+@keyframes heartbeat{0%,100%{transform:scale(1);}14%{transform:scale(1.18);}28%{transform:scale(1);}42%{transform:scale(1.12);}70%{transform:scale(1);}}
+.loading-text{
+  font-family:'Dancing Script',cursive;
+  font-size:clamp(1.1rem,3vw,1.6rem);
+  color:var(--rosa-suave);text-align:center;padding:0 1.5rem;
+  animation:fadeGlow 2s ease-in-out infinite;
+}
+@keyframes fadeGlow{0%,100%{opacity:.8;text-shadow:0 0 10px var(--rosa);}50%{opacity:1;text-shadow:0 0 30px var(--rosa),0 0 60px var(--violeta);}}
+.loading-bar-wrap{width:min(340px,80vw);height:4px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+.loading-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--violeta),var(--rosa),var(--dorado));border-radius:99px;box-shadow:0 0 12px var(--rosa);transition:width .04s linear;}
+.loading-pct{font-size:.85rem;color:var(--violeta-claro);letter-spacing:.1em;}
+
+/* =============================================
+   AMBIENT LIGHTS
+   ============================================= */
+.amb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:ambFloat 8s ease-in-out infinite;}
+.amb1{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,.12) 0%,transparent 70%);top:-200px;left:-200px;animation-delay:0s;}
+.amb2{width:500px;height:500px;background:radial-gradient(circle,rgba(255,107,157,.1) 0%,transparent 70%);bottom:-150px;right:-150px;animation-delay:-4s;}
+.amb3{width:400px;height:400px;background:radial-gradient(circle,rgba(245,200,66,.06) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-2s;}
+@keyframes ambFloat{0%,100%{transform:translate(0,0);}33%{transform:translate(30px,-20px);}66%{transform:translate(-20px,30px);}}
+
+/* =============================================
+   CANVAS
+   ============================================= */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* =============================================
+   FLOATING HEARTS
+   ============================================= */
+#hearts-container{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+.fheart{position:absolute;bottom:-60px;animation:floatUp linear infinite;opacity:0;pointer-events:none;filter:drop-shadow(0 0 6px var(--rosa));}
+@keyframes floatUp{0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:.8;}90%{opacity:.4;}100%{transform:translateY(-110vh) rotate(360deg);opacity:0;}}
+
+/* =============================================
+   NAV DOTS
+   ============================================= */
+#nav-dots{position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:.7rem;}
+.ndot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);cursor:pointer;transition:all .3s ease;}
+.ndot.active{background:var(--rosa);box-shadow:0 0 10px var(--rosa);transform:scale(1.4);}
+.ndot:hover{background:var(--rosa-suave);}
+
+/* =============================================
+   MÚSICA
+   ============================================= */
+#music-player{
+  position:fixed;bottom:1.5rem;left:1.5rem;z-index:1000;
+  display:flex;align-items:center;gap:.8rem;padding:.75rem 1.2rem;
+  border-radius:60px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(10,0,20,.7);border:1px solid rgba(255,107,157,.25);
+  box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 30px rgba(255,107,157,.1);
+  opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease;
+}
+#music-player.visible{opacity:1;transform:translateY(0);}
+.mnote{font-size:1.1rem;animation:mpulse 2s ease-in-out infinite;}
+@keyframes mpulse{0%,100%{transform:scale(1);opacity:.8;}50%{transform:scale(1.2);opacity:1;}}
+.mbtn{
+  width:36px;height:36px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,var(--violeta),var(--rosa));
+  color:#fff;font-size:.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s ease,box-shadow .15s ease;
+  box-shadow:0 0 10px rgba(139,92,246,.4);
+}
+.mbtn:hover{transform:scale(1.1);box-shadow:0 0 20px rgba(139,92,246,.6);}
+#vol{-webkit-appearance:none;appearance:none;width:70px;height:3px;background:rgba(255,255,255,.15);border-radius:99px;outline:none;cursor:pointer;}
+#vol::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;background:var(--rosa);cursor:pointer;box-shadow:0 0 6px var(--rosa);}
+
+/* =============================================
+   SCREENS
+   ============================================= */
+.screen{
+  position:relative;z-index:2;min-height:100vh;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem 1.5rem;opacity:0;transition:opacity .6s ease;
+}
+.screen.active{display:flex;opacity:1;}
+.screen.fadein{animation:sfade 1s var(--tr) forwards;}
+@keyframes sfade{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+
+/* =============================================
+   HOME
+   ============================================= */
+#screen-home{text-align:center;gap:2rem;padding-top:4rem;padding-bottom:8rem;}
+.eyebrow{font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dorado-suave);opacity:.85;animation:sdown 1s ease .3s both;}
+@keyframes sdown{from{opacity:0;transform:translateY(-20px);}to{opacity:.85;transform:translateY(0);}}
+.home-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.8rem,8vw,6rem);font-weight:300;line-height:1.1;
+  background:linear-gradient(135deg,#FFF 20%,var(--rosa-suave) 50%,var(--dorado) 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 40px rgba(255,107,157,.4));
+  animation:sup 1s ease .5s both;
+}
+.home-sub{font-family:'Dancing Script',cursive;font-size:clamp(1rem,2.5vw,1.4rem);color:var(--violeta-claro);max-width:550px;line-height:1.7;animation:sup 1s ease .8s both;}
+@keyframes sup{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.divider{display:flex;align-items:center;gap:1rem;width:100%;max-width:400px;}
+.dline{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,157,.4),transparent);}
+.dicon{color:var(--rosa);opacity:.7;}
+.scroll-hint{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;opacity:.5;animation:bounce 2s ease-in-out infinite;}
+.scroll-hint span{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(8px);}}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn-p{
+  display:inline-flex;align-items:center;gap:.6rem;padding:1rem 2.2rem;
+  font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:500;letter-spacing:.06em;
+  color:#fff;background:linear-gradient(135deg,var(--violeta) 0%,var(--rosa) 100%);
+  border:none;border-radius:50px;cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(139,92,246,.4),0 0 40px rgba(255,107,157,.2);
+  transition:transform .2s ease,box-shadow .2s ease;
+  animation:sup 1s ease 1.1s both;
+}
+.btn-p::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);pointer-events:none;}
+.btn-p:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 8px 30px rgba(139,92,246,.6),0 0 60px rgba(255,107,157,.35);}
+.btn-p:active{transform:scale(.97);}
+.btn-s{
+  display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.8rem;
+  font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:500;
+  color:var(--rosa-suave);background:var(--glass-bg);
+  border:1px solid var(--glass-border);border-radius:50px;cursor:pointer;
+  backdrop-filter:blur(12px);transition:all .25s ease;
+}
+.btn-s:hover{background:rgba(255,107,157,.15);border-color:var(--rosa);color:#fff;box-shadow:0 0 20px rgba(255,107,157,.3);transform:translateY(-2px);}
+
+/* =============================================
+   GLASS CARD
+   ============================================= */
+.gc{background:var(--glass-bg);border:1px solid var(--glass-border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:20px;box-shadow:var(--sombra-card);}
+
+/* =============================================
+   STORY
+   ============================================= */
+#screen-story{gap:2rem;max-width:800px;margin:0 auto;width:100%;}
+.story-card{padding:clamp(1.5rem,4vw,3rem);width:100%;position:relative;overflow:hidden;}
+.story-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 30%,rgba(139,92,246,.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(255,107,157,.08) 0%,transparent 60%);pointer-events:none;}
+.stitle{font-family:'Dancing Script',cursive;font-size:clamp(2rem,5vw,3rem);background:linear-gradient(135deg,var(--rosa-suave),var(--dorado));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1.5rem;text-align:center;}
+#tw-text{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,2vw,1.15rem);line-height:1.95;color:rgba(255,240,245,.92);font-weight:300;white-space:pre-line;min-height:2rem;}
+#tw-cur{display:inline-block;width:2px;height:1.1em;background:var(--rosa);margin-left:2px;vertical-align:text-bottom;animation:blink .8s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* =============================================
+   COUNTER
+   ============================================= */
+#screen-counter{gap:2.5rem;text-align:center;}
+.ctitle{font-family:'Dancing Script',cursive;font-size:clamp(1.8rem,5vw,3rem);background:linear-gradient(135deg,var(--rosa-suave),var(--violeta-claro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.csub{font-size:.85rem;color:var(--violeta-claro);letter-spacing:.15em;text-transform:uppercase;}
+.cgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;width:100%;max-width:720px;}
+.citem{flex:1 1 100px;max-width:160px;padding:1.5rem 1rem;text-align:center;position:relative;}
+.citem::after{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(255,107,157,.1));pointer-events:none;}
+.cnum{font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,6vw,3.5rem);font-weight:600;background:linear-gradient(135deg,#fff,var(--dorado));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;display:block;}
+.clbl{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rosa-suave);margin-top:.4rem;}
+.csep{font-size:2rem;color:var(--rosa);opacity:.5;align-self:center;padding-bottom:1rem;}
+
+/* =============================================
+   REASONS
+   ============================================= */
+#screen-reasons{gap:2rem;text-align:center;max-width:680px;margin:0 auto;width:100%;}
+.rtitle{font-family:'Dancing Script',cursive;font-size:clamp(1.8rem,5vw,2.8rem);background:linear-gradient(135deg,var(--rosa-suave),var(--dorado));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.rbadge{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--violeta-claro);}
+.rcard{width:100%;padding:2.5rem 2rem;min-height:120px;display:flex;align-items:center;justify-content:center;}
+#rtext{font-family:'Cormorant Garamond',serif;font-size:clamp(1.2rem,3vw,1.6rem);font-style:italic;font-weight:300;color:var(--texto-claro);line-height:1.5;text-align:center;opacity:0;transition:opacity .4s ease,transform .4s ease;transform:translateY(10px);}
+#rtext.vis{opacity:1;transform:translateY(0);}
+
+/* =============================================
+   LOVE
+   ============================================= */
+#screen-love{gap:2.5rem;text-align:center;}
+.ltitle{font-family:'Dancing Script',cursive;font-size:clamp(1.8rem,5vw,3rem);color:var(--rosa-suave);}
+#btn-love{font-family:'Dancing Script',cursive;font-size:clamp(1.3rem,4vw,2rem);padding:1.2rem 3rem;border-radius:60px;}
+#love-resp{font-family:'Cormorant Garamond',serif;font-size:clamp(1.3rem,3.5vw,2rem);font-style:italic;color:var(--dorado-suave);opacity:0;transform:scale(.8);transition:all .6s cubic-bezier(.34,1.56,.64,1);text-shadow:0 0 30px rgba(245,200,66,.5);}
+#love-resp.show{opacity:1;transform:scale(1);}
+
+/* =============================================
+   FINAL
+   ============================================= */
+#screen-final{gap:2rem;text-align:center;padding-bottom:6rem;}
+.fdeco{font-size:3rem;animation:heartbeat 1.5s ease-in-out infinite;filter:drop-shadow(0 0 20px var(--rosa));}
+.fquote{font-family:'Cormorant Garamond',serif;font-size:clamp(1.1rem,3vw,1.5rem);font-style:italic;font-weight:300;color:rgba(255,240,245,.88);max-width:560px;line-height:1.8;border-left:2px solid var(--rosa);padding-left:1.5rem;text-align:left;}
+.fquote+.fquote{margin-top:1rem;}
+.ffirma{font-family:'Dancing Script',cursive;font-size:clamp(1.5rem,4vw,2.2rem);background:linear-gradient(135deg,var(--rosa),var(--dorado));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(255,107,157,.4));margin-top:1rem;}
+
+/* =============================================
+   SECTION NAV
+   ============================================= */
+.snav{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem;}
+
+/* =============================================
+   EXPLOSION
+   ============================================= */
+.exheart{position:fixed;pointer-events:none;z-index:9990;animation:expl var(--dur,1.5s) ease-out forwards;}
+@keyframes expl{0%{transform:translate(0,0) scale(.5) rotate(0deg);opacity:1;}80%{opacity:.8;}100%{transform:translate(var(--tx),var(--ty)) scale(.2) rotate(var(--rot));opacity:0;}}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media(max-width:768px){
+  .cgrid{gap:.6rem;}
+  .citem{min-width:80px;padding:1rem .7rem;}
+  .csep{display:none;}
+  .story-card{padding:1.5rem 1.2rem;}
+  #nav-dots{right:.7rem;}
+  #music-player{bottom:1rem;left:1rem;padding:.6rem 1rem;}
+  #vol{width:50px;}
+  .amb1,.amb2{width:300px;height:300px;}
+}
+@media(max-width:480px){
+  .btn-p{padding:.85rem 1.6rem;font-size:.9rem;}
+  .cnum{font-size:2rem;}
+  .fquote{font-size:1rem;}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- AMBIENT -->
+<div class="amb amb1"></div>
+<div class="amb amb2"></div>
+<div class="amb amb3"></div>
+
+<!-- CANVAS -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- HEARTS -->
+<div id="hearts-container"></div>
+
+<!-- CURSOR -->
+<div id="cursor-dot"></div>
+<div id="cursor-heart">💕</div>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-heart">💖</div>
+  <p class="loading-text">Preparando una sorpresa para el amor de mi vida...</p>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+  <span class="loading-pct">0%</span>
+</div>
+
+<!-- NAV DOTS -->
+<nav id="nav-dots"></nav>
+
+<!-- MUSIC PLAYER -->
+<div id="music-player">
+  <span class="mnote">🎵</span>
+  <button class="mbtn" id="btn-play"  title="Reproducir">▶</button>
+  <button class="mbtn" id="btn-pause" title="Pausar" style="display:none;">⏸</button>
+  <input type="range" id="vol" min="0" max="1" step="0.05" value="0.5" />
+</div>
+
+<!-- AUDIO: poné tu mp3 en la misma carpeta con este nombre -->
+<!-- Reproductor de YouTube oculto -->
+<div id="yt-player" style="width:0;height:0;overflow:hidden;"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let ytPlayer;
+
+function onYouTubeIframeAPIReady() {
+    ytPlayer = new YT.Player('yt-player', {
+        height: '0',
+        width: '0',
+        videoId: https://www.youtube.com/watch?v=gO8-9OWzPOQ
+        playerVars: {
+            autoplay: 0,
+            controls: 0,
+            loop: 1,
+            playlist: 'VIDEO_ID'
+        }
+    });
+}
+</script>
+<!-- ==========================================
+     PANTALLAS
+     ========================================== -->
+<main>
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen">
+    <span class="eyebrow">✨ Con todo mi amor ✨</span>
+    <h1 class="home-title">Para el amor de mi vida ❤️</h1>
+    <p class="home-sub">Esta página guarda una pequeña parte de todo lo que siento por vos.</p>
+    <div class="divider"><div class="dline"></div><span class="dicon">💕</span><div class="dline"></div></div>
+    <button class="btn-p" id="btn-start">Comenzar nuestra historia ❤️</button>
+    <div class="scroll-hint"><span>↓</span><span>Descubrí más</span></div>
+  </section>
+
+  <!-- HISTORIA -->
+  <section id="screen-story" class="screen">
+    <article class="gc story-card">
+      <h2 class="stitle">💌 Nuestra Historia</h2>
+      <p id="tw-text"></p><span id="tw-cur"></span>
+    </article>
+    <div class="snav">
+      <button class="btn-s" data-go="home">← Volver al inicio</button>
+      <button class="btn-p" data-go="counter">Ver nuestro tiempo juntos ❤️</button>
+    </div>
+  </section>
+
+  <!-- CONTADOR -->
+  <section id="screen-counter" class="screen">
+    <h2 class="ctitle">💖 Nuestro tiempo juntos</h2>
+    <p class="csub">Tiempo que llevamos amándonos</p>
+    <div class="cgrid">
+      <div class="gc citem"><span class="cnum" id="cnt-years">00</span><span class="clbl">Años</span></div>
+      <span class="csep">:</span>
+      <div class="gc citem"><span class="cnum" id="cnt-months">00</span><span class="clbl">Meses</span></div>
+      <span class="csep">:</span>
+      <div class="gc citem"><span class="cnum" id="cnt-days">00</span><span class="clbl">Días</span></div>
+      <span class="csep">:</span>
+      <div class="gc citem"><span class="cnum" id="cnt-hours">00</span><span class="clbl">Horas</span></div>
+      <span class="csep">:</span>
+      <div class="gc citem"><span class="cnum" id="cnt-minutes">00</span><span class="clbl">Minutos</span></div>
+      <span class="csep">:</span>
+      <div class="gc citem"><span class="cnum" id="cnt-seconds">00</span><span class="clbl">Segundos</span></div>
+    </div>
+    <p style="font-family:'Dancing Script',cursive;font-size:1.2rem;color:var(--rosa-suave);opacity:.8;">...y sigue creciendo ❤️</p>
+    <div class="snav">
+      <button class="btn-s" data-go="story">← Nuestra historia</button>
+      <button class="btn-p" data-go="reasons">100 razones para amarte ❤️</button>
+    </div>
+  </section>
+
+  <!-- RAZONES -->
+  <section id="screen-reasons" class="screen">
+    <h2 class="rtitle">💕 100 Formas de Decirte que Te Amo</h2>
+    <p class="rbadge" id="rbadge">1 / 100</p>
+    <div class="gc rcard"><p id="rtext"></p></div>
+    <button class="btn-p" id="btn-reason">Mostrar otra razón ❤️</button>
+    <div class="snav">
+      <button class="btn-s" data-go="counter">← Nuestro tiempo</button>
+      <button class="btn-p" data-go="love">¿Cuánto te amo? ❤️</button>
+    </div>
+  </section>
+
+  <!-- LOVE -->
+  <section id="screen-love" class="screen">
+    <h2 class="ltitle">✨ La pregunta más importante ✨</h2>
+    <button class="btn-p" id="btn-love">¿Cuánto te amo? ❤️</button>
+    <p id="love-resp">Cada día descubro más de vos y me enamoro más y más, y creo que todos los días esto va mejorando. En serio quiero pasar toda mi vida al lado tuyo. ❤️</p>
+    <div class="snav">
+      <button class="btn-s" data-go="reasons">← Las 100 razones</button>
+      <button class="btn-p" data-go="final">Ver el mensaje final ❤️</button>
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="screen-final" class="screen">
+    <div class="fdeco">💖</div>
+    <h2 class="stitle">Para vos mi amor, te amo.</h2>
+    <div class="gc" style="padding:clamp(1.5rem,4vw,2.5rem);max-width:640px;width:100%;">
+      <blockquote>
+        <p class="fquote">Si algún día dudás de cuánto te amo, volvé a esta página.</p>
+        <p class="fquote">La hice para recordarte que siempre voy a elegirte.</p>
+      </blockquote>
+    </div>
+    <p class="ffirma">Con todo mi amor, para siempre. ❤️</p>
+    <div class="snav"><button class="btn-s" data-go="home">Volver al inicio ❤️</button></div>
+  </section>
+
+</main>
+
+<script>
+'use strict';
+
+/* ================================================
+   ESTADO
+   ================================================ */
+const S = {
+  cur: 'home',
+  rIdx: 0,
+  rShuf: [],
+  twDone: false,
+  playing: false,
+  clicked: false
+};
+
+const $$ = id => document.getElementById(id);
+
+/* ================================================
+   CURSOR
+   ================================================ */
+(function(){
+  const dot = $$('cursor-dot'), heart = $$('cursor-heart');
+  let mx=-100,my=-100,hx=-100,hy=-100;
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+  });
+  (function anim(){
+    hx+=(mx-hx)*.12; hy+=(my-hy)*.12;
+    heart.style.left=hx+'px'; heart.style.top=hy+'px';
+    requestAnimationFrame(anim);
+  })();
+  if(!window.matchMedia('(pointer:fine)').matches){
+    dot.style.display='none'; heart.style.display='none';
+  }
+})();
+
+/* ================================================
+   CANVAS: ESTRELLAS Y PARTÍCULAS
+   ================================================ */
+(function(){
+  const cv=$$('bg-canvas'), ctx=cv.getContext('2d');
+  let stars=[], particles=[], W, H, frame=0;
+  function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight; }
+  resize(); addEventListener('resize',resize);
+
+  function makeStars(){
+    stars=[];
+    for(let i=0;i<180;i++) stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*1.5+.3, a:Math.random(),
+      da:(Math.random()-.5)*.008, speed:Math.random()*.15
+    });
+  }
+  makeStars();
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*.7);
+    g.addColorStop(0,'#2D0040'); g.addColorStop(1,'#0D0010');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+    stars.forEach(s=>{
+      s.a+=s.da;
+      if(s.a>1){s.da*=-1;s.a=1;} if(s.a<0){s.da*=-1;s.a=0;}
+      s.y-=s.speed; if(s.y<0){s.y=H;s.x=Math.random()*W;}
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,240,255,${s.a})`; ctx.fill();
+    });
+
+    if(frame%8===0) particles.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*2+.5, a:0, da:Math.random()*.015,
+      life:0, maxL:Math.random()*120+60,
+      vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+      hue:Math.random()>.5?'320':'270'
+    });
+    particles=particles.filter(p=>p.life<p.maxL);
+    particles.forEach(p=>{
+      p.life++; p.x+=p.vx; p.y+=p.vy;
+      p.a=Math.sin((p.life/p.maxL)*Math.PI);
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},80%,75%,${p.a*.6})`; ctx.fill();
+    });
+    frame++; requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ================================================
+   CORAZONES FLOTANTES
+   ================================================ */
+(function(){
+  const cont=$$('hearts-container');
+  const emojis=['❤️','💕','💖','💗','💓','💝','✨','🌸'];
+  function spawn(){
+    const el=document.createElement('div');
+    el.className='fheart';
+    el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left=Math.random()*100+'vw';
+    el.style.fontSize=(Math.random()*20+12)+'px';
+    el.style.animationDuration=(Math.random()*8+8)+'s';
+    el.style.animationDelay=(Math.random()*3)+'s';
+    cont.appendChild(el);
+    setTimeout(()=>el.remove(),20000);
+  }
+  for(let i=0;i<8;i++) setTimeout(spawn,i*400);
+  setInterval(spawn,1800);
+})();
+
+/* ================================================
+   PANTALLAS
+   ================================================ */
+const SCREENS=['home','story','counter','reasons','love','final'];
+
+function showScreen(name){
+  SCREENS.forEach(s=>{
+    const el=$$('screen-'+s);
+    if(!el) return;
+    el.classList.remove('active','fadein');
+    el.style.display='none'; el.style.opacity='0';
+  });
+  const el=$$('screen-'+name);
+  if(!el) return;
+  el.style.display='flex'; el.classList.add('active');
+  requestAnimationFrame(()=>{ el.classList.add('fadein'); el.style.opacity='1'; });
+  S.cur=name; updateDots();
+  if(name==='story'&&!S.twDone) startTW();
+  if(name==='counter') startCounter();
+  if(name==='reasons'&&S.rShuf.length===0) initReasons();
+  scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ================================================
+   NAV DOTS
+   ================================================ */
+(function(){
+  const nav=$$('nav-dots');
+  const labels=['Inicio','Historia','Contador','Razones','Te Amo','Final'];
+  SCREENS.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='ndot'; d.title=labels[i];
+    d.addEventListener('click',()=>showScreen(s));
+    nav.appendChild(d);
+  });
+  updateDots();
+})();
+function updateDots(){
+  document.querySelectorAll('.ndot').forEach((d,i)=>d.classList.toggle('active',i===SCREENS.indexOf(S.cur)));
+}
+
+/* ================================================
+   MÚSICA (YOUTUBE)
+   ================================================ */
+(function () {
+    const player = $$('music-player');
+    const play = $$('btn-play');
+    const pause = $$('btn-pause');
+    const vol = $$('vol');
+
+    setTimeout(() => player.classList.add('visible'), 800);
+
+    function update() {
+        play.style.display = S.playing ? 'none' : 'flex';
+        pause.style.display = S.playing ? 'flex' : 'none';
+    }
+
+    play.addEventListener('click', () => {
+        if (ytPlayer) {
+            ytPlayer.playVideo();
+            S.playing = true;
+            update();
+        }
+    });
+
+    pause.addEventListener('click', () => {
+        if (ytPlayer) {
+            ytPlayer.pauseVideo();
+            S.playing = false;
+            update();
+        }
+    });
+
+    vol.addEventListener('input', () => {
+        if (ytPlayer) {
+            ytPlayer.setVolume(vol.value * 100);
+        }
+    });
+
+    document.addEventListener('click', () => {
+        if (!S.clicked && ytPlayer) {
+            S.clicked = true;
+            ytPlayer.playVideo();
+            S.playing = true;
+            update();
+        }
+    }, { once: true });
+
+    update();
+})();
+/* ================================================
+   TYPEWRITER
+   ================================================ */
+const STORY=`Hola mi amor. 💖
+
+Si estás leyendo esto, seguramente ya cumplimos dos meses de relación. No sabés lo muchísimo que te amo, así que quiero hacer un pequeño resumen de cómo nos conocimos.
+Todo comenzó en el stream de Rodri. Al principio todo era una broma, jajaja. Después te pasé mi Instagram y empezamos a hablar. Sinceramente, al principio yo no lo tomaba como algo serio, pero con el paso de los días fui descubriendo la persona tan hermosa que sos. Me enamoré de tu forma de ser, de tu belleza, de lo perfecta que sos para mí, y cada día que pasaba me enamoraba un poquito más.
+Aunque en un momento terminamos por distintas cosas y estuvimos unas semanas separados, cuando volvimos sentí una felicidad enorme. No me arrepiento ni un solo segundo de haber vuelto con vos.
+De verdad siento que sos el amor de mi vida. Quiero construir un futuro a tu lado, formar una familia juntos y descubrir todo lo que el destino tiene preparado para nosotros. Pase lo que pase, quiero seguir caminando a tu lado.
+Gracias por hacerme tan feliz, por estar conmigo y por elegirme cada día.
+Espero que estos dos meses sean solo el comienzo de una historia hermosa que dure toda la vida.
+
+Te amo con todo mi corazón, Sol ❤️`;
+
+function startTW(){
+  const el=$$('tw-text'), cur=$$('tw-cur');
+  if(!el) return;
+  el.textContent=''; let i=0;
+  function type(){
+    if(i<STORY.length){
+      el.textContent+=STORY[i];
+      const c=STORY[i]; i++;
+      const d=c==='\n'?140:c===','?80:c==='.'?100:28+Math.random()*15;
+      setTimeout(type,d);
+    } else { S.twDone=true; if(cur) cur.style.display='none'; }
+  }
+  type();
+}
+
+/* ================================================
+   CONTADOR
+   ================================================ */
+let cInt=null;
+function startCounter(){
+  if(cInt) return;
+  const start=new Date('2026-04-30T00:00:00-03:00');
+  function upd(){
+    const now=new Date();
+    let diff=now-start; if(diff<0) diff=0;
+    const tSec=Math.floor(diff/1000);
+    const secs=tSec%60, tMin=Math.floor(tSec/60), mins=tMin%60;
+    const tHr=Math.floor(tMin/60), hrs=tHr%24;
+    const tD=Math.floor(tHr/24);
+    const sy=start.getFullYear(), sm=start.getMonth();
+    const ny=now.getFullYear(), nm=now.getMonth(), nd=now.getDate();
+    let years=ny-sy, months=nm-sm;
+    if(months<0){years--;months+=12;}
+    const td=new Date(sy+years,sm+months,start.getDate());
+    let days=Math.floor((now-td)/86400000);
+    if(days<0){months--;if(months<0){years--;months=11;}days+=30;}
+    set('cnt-years',p(years)); set('cnt-months',p(months)); set('cnt-days',p(days));
+    set('cnt-hours',p(hrs));   set('cnt-minutes',p(mins));  set('cnt-seconds',p(secs));
+  }
+  upd(); cInt=setInterval(upd,1000);
+}
+function p(n){return String(n).padStart(2,'0');}
+function set(id,v){const e=$$(id);if(e&&e.textContent!==v)e.textContent=v;}
+
+/* ================================================
+   100 RAZONES
+   ================================================ */
+const REASONS=[
+  "Porque tu voz me saca una sonrisa todos los dias.",
+  "Porque sos la primera persona en la que pienso al despertar.",
+  "Porque con vos todo tiene más sentido.",
+  "Porque me hacés querer ser la mejor versión de mí mismo.",
+  "Porque tu risa es lo mas lindo que puedo llegar a escuchar.",
+  "Porque elegís estar conmigo cada día.",
+  "Porque sos al lado tuyo me siento el hombre mas feliz del mundo.",
+  "Porque te amo incluso en los días difíciles.",
+  "Porque cuando estoy con vos el tiempo vuela.",
+  "Porque nunca imaginé que alguien pudiera hacerme sentir así.",
+  "Porque sos exactamente quien necesitaba encontrar.",
+  "Porque tu forma de ser conmigo me hace sentir especial.",
+  "Porque cuando estamos en llamada el mundo desaparece.",
+  "Porque sos tan hermosa que hasta me cuesta respirar a veces.",
+  "Porque al estar solo con vos convierte cualquier momento del dia en el mejor.",
+  "Porque con vos soy yo mismo, sin filtros ni miedos.",
+  "Porque pienso en nuestro futuro y me llena de felicidad.",
+  "Porque sos la persona con quien quiero compartir todo.",
+  "Porque incluso tus defectos me parecen perfectos.",
+  "Porque me escuchás de verdad cuando hablo.",
+  "Porque tenés un corazón enorme que me enamora cada día.",
+  "Porque me querés tal y como soy.",
+  "Porque sos mi motivación para dar lo mejor de mí.",
+  "Porque con vos descubrí lo que es el amor de verdad.",
+  "Porque me hacés reír como nadie más puede hacerlo.",
+  "Porque cuando pienso en el futuro, siempre estás vos.",
+  "Porque sos mi persona favorita en todo el mundo.",
+  "Porque me hacés sentir amado de una manera única.",
+  "Porque sos inteligente, amable y hermosa.",
+  "Porque te elegiría mil veces más, en cada vida.",
+  "Porque tu voz es lo que más quiero escuchar.",
+  "Porque me enseñaste que el amor puede ser así de bonito.",
+  "Porque sos todo lo que siempre quise sin saberlo.",
+  "Porque con cada mensaje tuyo me alegras el día.",
+  "Porque sos el sueño que se hizo realidad.",
+  "Porque me hacés sentir en paz cuando todo es caos.",
+  "Porque tus ojos guardan todo un universo.",
+  "Porque sin vos, los días tendrían menos color.",
+  "Porque me hacés creer en el amor.",
+  "Porque sos mi favorita, hoy y siempre.",
+  "Porque cuando estoy mal, solo quiero estar con vos.",
+  "Porque amarte es lo más natural que hice en mi vida.",
+  "Porque sos mi calma y mi tormenta favorita.",
+  "Porque quiero descubrir el mundo entero a tu lado.",
+  "Porque sos infinitamente más de lo que merezco.",
+  "Porque cada día a tu lado es un regalo.",
+  "Porque me enamoré de vos poco a poco, y sigo cayendo.",
+  "Porque sos la razón por la que sonrío sin motivo.",
+  "Porque te quiero con cada parte de quien soy.",
+  "Porque sos el amor más puro que existe para mí.",
+  "Porque cuando hablo de vos, los ojos se me iluminan.",
+  "Porque elegiste quedarte, y eso vale todo.",
+  "Porque me das ganas de construir algo hermoso juntos.",
+  "Porque sos mi mayor inspiración.",
+  "Porque contigo cada momento ordinario se vuelve especial.",
+  "Porque te mereces todo lo bueno de este mundo.",
+  "Porque tu felicidad es mi felicidad.",
+  "Porque sos todo mi corazón.",
+  "Porque con vos aprendí que el amor no duele.",
+  "Porque sos la persona que cambia todo con su presencia.",
+  "Porque me hacés sentir que puedo con todo.",
+  "Porque cada vez que nos despedimos ya estoy pensando en verte.",
+  "Porque amarte es lo mejor que me pasó.",
+  "Porque sos la historia más bonita de mi vida.",
+  "Porque con vos no necesito nada más.",
+  "Porque sos tan especial que las palabras se quedan cortas.",
+  "Porque te pienso todo el tiempo, incluso cuando no me doy cuenta.",
+  "Porque me das paz solo con saber que estás.",
+  "Porque sos la razón más grande que tengo para sonreír.",
+  "Porque te amo en silencio, en palabras y en todo.",
+  "Porque contigo el tiempo siempre es poco.",
+  "Porque sos mi primer pensamiento de la mañana y el último de la noche.",
+  "Porque no me imagino la vida sin vos en ella.",
+  "Porque me hacés sentir en casa estés donde estés.",
+  "Porque sos la persona que quiero al lado en cada momento.",
+  "Porque tu amor me hace una persona mejor.",
+  "Porque sos genuina, real y completamente vos.",
+  "Porque con vos no tengo miedo de ser vulnerable.",
+  "Porque me enseñaste que amar de verdad es una fortaleza.",
+  "Porque sos mi compañera perfecta de vida.",
+  "Porque te amo más de lo que cualquier frase podría decir.",
+  "Porque sos la luz que necesitaba en mis días.",
+  "Porque cuando te abrazo el mundo se vuelve mejor.",
+  "Porque quiero seguir creando recuerdos hermosos a tu lado.",
+  "Porque sos mi persona y lo seguirás siendo.",
+  "Porque me elegiste, y eso lo es todo para mí.",
+  "Porque con cada día que pasa te amo más.",
+  "Porque sos la respuesta a todas mis preguntas.",
+  "Porque gracias a vos sé lo que significa el amor de verdad.",
+  "Porque sos el sueño más lindo que la vida me dio.",
+  "Porque juntos somos invencibles.",
+  "Porque sos, simplemente, todo.",
+  "Porque tu amor es el más bonito del universo.",
+  "Porque te amo ayer, hoy y mañana más.",
+  "Porque sos la razón por la que esta página existe.",
+  "Porque nada se compara con lo que siento cuando estás vos.",
+  "Porque quiero amarte el resto de mi vida.",
+  "Porque sos perfecta tal como sos.",
+  "Porque te amo. Simplemente, te amo. ❤️"
+];
+
+function initReasons(){
+  S.rShuf=[...REASONS].sort(()=>Math.random()-.5);
+  S.rIdx=0; showReason();
+}
+function showReason(){
+  const el=$$('rtext'), badge=$$('rbadge');
+  if(!el) return;
+  el.classList.remove('vis');
+  setTimeout(()=>{
+    el.textContent=`"${S.rShuf[S.rIdx]}"`;
+    if(badge) badge.textContent=`${S.rIdx+1} / ${REASONS.length}`;
+    el.classList.add('vis');
+    S.rIdx=(S.rIdx+1)%REASONS.length;
+    if(S.rIdx===0) S.rShuf=[...REASONS].sort(()=>Math.random()-.5);
+  },400);
+}
+
+/* ================================================
+   EXPLOSIÓN DE CORAZONES
+   ================================================ */
+function explode(cx,cy){
+  const emojis=['❤️','💕','💖','💗','💓','✨','💝','🌸'];
+  const count=innerWidth<600?25:45;
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.className='exheart';
+    el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    const angle=(Math.PI*2*i)/count+Math.random()*.3;
+    const dist=80+Math.random()*280;
+    const tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist-Math.random()*150;
+    const dur=1.2+Math.random()*1;
+    el.style.left=cx+'px'; el.style.top=cy+'px';
+    el.style.setProperty('--tx',tx+'px');
+    el.style.setProperty('--ty',ty+'px');
+    el.style.setProperty('--dur',dur+'s');
+    el.style.setProperty('--rot',(Math.random()-.5)*720+'deg');
+    el.style.fontSize=(14+Math.random()*22)+'px';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),(dur+.1)*1000);
+  }
+}
+
+/* ================================================
+   EVENTOS
+   ================================================ */
+$$('btn-start').addEventListener('click',e=>{
+  explode(e.clientX,e.clientY);
+  setTimeout(()=>showScreen('story'),400);
+});
+$$('btn-reason').addEventListener('click',e=>{
+  explode(e.clientX,e.clientY); showReason();
+});
+$$('btn-love').addEventListener('click',e=>{
+  explode(e.clientX,e.clientY);
+  $$('love-resp').classList.add('show');
+});
+document.querySelectorAll('[data-go]').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    explode(e.clientX,e.clientY);
+    setTimeout(()=>showScreen(btn.dataset.go),300);
+  });
+});
+
+/* ================================================
+   LOADING
+   ================================================ */
+(function(){
+  const bar=document.querySelector('.loading-bar');
+  const pct=document.querySelector('.loading-pct');
+  const screen=$$('loading-screen');
+  let prog=0;
+  const iv=setInterval(()=>{
+    const inc=prog<60?Math.random()*3.5+1:prog<85?Math.random()*1.5+.5:Math.random()*.6+.2;
+    prog=Math.min(prog+inc,100);
+    bar.style.width=prog+'%';
+    if(pct) pct.textContent=Math.floor(prog)+'%';
+    if(prog>=100){
+      clearInterval(iv);
+      setTimeout(()=>{
+        screen.classList.add('hidden');
+        showScreen('home');
+      },600);
+    }
+  },40);
+})();
+</script>
+</body>
+</html>
